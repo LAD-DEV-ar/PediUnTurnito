@@ -8,6 +8,6 @@ class DashboardController{
     public static function index(Router $router){
         
 
-        $router->render('', []);
+        $router->render('dashboard/index', []);
     }
 }
