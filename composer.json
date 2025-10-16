@@ -1,6 +1,6 @@
 {
-    "name": "codigoconjuan/app-salon_php_mvc_js_sass",
-    "description": "Proyecto PHP 8, MVC, SQL, SASS, Active Record",
+    "name": "laddev/pediunturnito-php",
+    "description": "PediUnTurnito - Sistema aliado al barbero",
     "type": "project",
     "autoload": {
         "psr-4": {
