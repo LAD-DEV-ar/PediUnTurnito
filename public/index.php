@@ -3,11 +3,13 @@
 require_once __DIR__ . '/../includes/app.php';
 
 use MVC\Router;
-use Controllers\DashboardController;
+use Controllers\BookingController;
 
 $router = new Router();
 
-$router->get('/', [DashboardController::class, 'index']);
+$router->get('/booking', [BookingController::class, 'index']);
+$router->post('/booking/slots', [BookingController::class, 'availableSlots']);
+$router->post('/booking/reserve', [BookingController::class, 'reserve']);
 
 
 

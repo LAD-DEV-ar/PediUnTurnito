@@ -1,0 +1,14 @@
+@use 'variables' as v;
+@use 'mixins' as m;
+
+.btn{
+display:inline-flex; align-items:center; gap:10px; padding:10px 14px; border-radius:10px; border:0; cursor:pointer; font-weight:700; color:#02112b;
+background: linear-gradient(90deg, v.$color-primary, v.$color-accent); box-shadow: 0 8px 24px rgba(124,58,237,0.12);
+@include m.transition();
+}
+.btn:hover{ transform: translateY(-2px) }
+.btn.ghost{ background:transparent; border:1px solid rgba(255,255,255,0.04); color: v.$color-muted; box-shadow:none }
+.btn[disabled]{ opacity:0.5; cursor:not-allowed; transform:none }
+
+
+.btn-icon{ display:inline-grid; place-items:center; width:40px; height:40px; border-radius:10px; background: v.$color-glass }

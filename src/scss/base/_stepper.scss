@@ -1,0 +1,7 @@
+@use 'variables' as v;
+
+.stepper{ display:flex; flex-direction:column; gap:12px }
+.step{ display:flex; gap:12px; align-items:center }
+.bullet{ width:36px; height:36px; border-radius:10px; background: v.$color-glass; display:grid; place-items:center; font-weight:700 }
+.step.active .bullet{ background: linear-gradient(90deg, v.$color-primary, v.$color-accent); color:#02112b }
+.step .meta{ font-size:13px }

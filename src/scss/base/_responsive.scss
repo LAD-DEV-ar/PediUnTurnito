@@ -1,0 +1,14 @@
+@use 'variables' as v;
+@use 'mixins' as m;
+
+@include m.respond(md) {
+.container { padding: 12px }
+.aside{ order: 2 }
+.main{ order: 1 }
+}
+
+
+@include m.respond(sm) {
+.times { grid-template-columns: repeat(auto-fill, minmax(120px,1fr)) }
+.logo .mark { width:36px; height:36px }
+}

@@ -1,0 +1,6 @@
+@use 'variables' as v;
+.chips{ display:flex; gap:8px; flex-wrap:wrap }
+.chip{ padding:8px 10px; border-radius:999px; background: rgba(255,255,255,0.03); font-size:13px }
+
+
+.badge-pill{ padding:6px 10px; border-radius:999px; background: rgba(255,255,255,0.03); font-weight:600 }
