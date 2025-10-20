@@ -14,6 +14,8 @@ class BookingController {
     public static function index(Router $router) {
         $services = Servicio::all();
         $barberos = Usuario::allBarberos(); // devuelve objetos Usuario con es_barbero = 1
+        
+
         $router->render('booking/index', [
             'services' => $services,
             'barbers'  => $barberos
@@ -115,6 +117,8 @@ class BookingController {
         $serviceId = intval($_POST['service_id'] ?? 0);
         $start = $_POST['start'] ?? null;
         $clientId = $_SESSION['id'] ?? intval($_POST['client_id'] ?? 0);
+
+        
 
         if (!$date || !$barberId || !$serviceId || !$start || !$clientId) {
             http_response_code(400); echo json_encode(['error'=>'Faltan parámetros o usuario no autenticado']); return;

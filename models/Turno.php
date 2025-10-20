@@ -38,6 +38,21 @@ class Turno extends ActiveRecord {
         $db = self::getDB();
         $b = (int)$barberId;
         $dateEsc = $db->escape_string($date);
+
+        // Normalizar hora a HH:MM:SS
+        if (strpos($hora_inicio, ':') !== false) {
+            $parts = explode(':', $hora_inicio);
+            if (count($parts) === 2) {
+                $hora_inicio = sprintf('%02d:%02d:00', intval($parts[0]), intval($parts[1]));
+            } elseif (count($parts) === 3) {
+                $hora_inicio = sprintf('%02d:%02d:%02d', intval($parts[0]), intval($parts[1]), intval($parts[2]));
+            }
+        } else {
+            // si mandaron solo '9' -> convertir a 09:00:00
+            $h = intval($hora_inicio);
+            $hora_inicio = sprintf('%02d:00:00', $h);
+        }
+
         $horaEsc = $db->escape_string($hora_inicio);
         $sql = "SELECT * FROM " . self::$tabla . " WHERE id_barbero = {$b} AND fecha = '{$dateEsc}' AND hora_inicio = '{$horaEsc}' LIMIT 1";
         $res = $db->query($sql);

@@ -1,6 +1,5 @@
 // public/js/booking.js
 document.addEventListener('DOMContentLoaded', () => {
-  // Elementos
   const serviceItems = document.querySelectorAll('[data-service-id]');
   const barberItems  = document.querySelectorAll('[data-barber-id]');
   const inputFecha = document.getElementById('input-fecha');
@@ -23,7 +22,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let state = { step: 1, service: null, barber: null, date: null, start: null, name: '' };
 
-  // Helpers
   function showStep(n) {
     for (let i = 1; i <= 4; i++) {
       const el = document.getElementById('step-' + i);
@@ -32,20 +30,14 @@ document.addEventListener('DOMContentLoaded', () => {
     state.step = n;
     backBtn.disabled = n === 1;
     nextBtn.innerText = (n === 4) ? 'Confirmar' : 'Siguiente';
-    // enable/disable next button according to current step state
     updateNextState();
   }
 
   function updateNextState() {
-    if (state.step === 1) {
-      nextBtn.disabled = !(state.service && state.barber);
-    } else if (state.step === 2) {
-      nextBtn.disabled = !state.date;
-    } else if (state.step === 3) {
-      nextBtn.disabled = !state.start;
-    } else {
-      nextBtn.disabled = false;
-    }
+    if (state.step === 1) nextBtn.disabled = !(state.service && state.barber);
+    else if (state.step === 2) nextBtn.disabled = !state.date;
+    else if (state.step === 3) nextBtn.disabled = !state.start;
+    else nextBtn.disabled = false;
   }
 
   function gotoStep(n) {
@@ -58,37 +50,30 @@ document.addEventListener('DOMContentLoaded', () => {
     confServicio.innerText = state.service ? state.service.name : '-';
     confBarbero.innerText = state.barber ? state.barber.name : '-';
     confFecha.innerText = state.date || '-';
-    confHora.innerText = state.start || '-';
+    confHora.innerText = state.start ? state.start.substr(0,5) : '-';
   }
 
-  // Selección de servicio
   serviceItems.forEach(it => {
     it.addEventListener('click', () => {
       serviceItems.forEach(x => x.classList.remove('selected'));
       it.classList.add('selected');
-
       const id = parseInt(it.dataset.serviceId, 10);
-      const name = it.querySelector('strong') ? it.querySelector('strong').innerText.trim() : (it.dataset.nombre || '');
-      const duration = parseInt(it.dataset.duracion || it.dataset.duration || '30', 10);
-      const price = it.dataset.precio || it.dataset.price || '';
-
+      const name = it.querySelector('strong') ? it.querySelector('strong').innerText.trim() : '';
+      const duration = parseInt(it.dataset.duracion || '30', 10);
+      const price = it.dataset.precio || '';
       state.service = { id, name, duration, price };
-
       miniServicio.innerText = name;
       duracionLabel.innerText = duration + ' min';
       updateNextState();
     });
   });
 
-  // Selección de barbero
   barberItems.forEach(it => {
     it.addEventListener('click', () => {
       barberItems.forEach(x => x.classList.remove('selected'));
       it.classList.add('selected');
-
       const id = parseInt(it.dataset.barberId, 10);
       const name = it.dataset.nombre || (it.querySelector('strong') ? it.querySelector('strong').innerText.trim() : '');
-
       state.barber = { id, name };
       miniBarbero.innerText = name;
       selectedBarberoLabel.innerText = name;
@@ -96,14 +81,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Navegación
-  backBtn.addEventListener('click', () => {
-    if (state.step > 1) gotoStep(state.step - 1);
-  });
+  backBtn.addEventListener('click', () => { if (state.step > 1) gotoStep(state.step - 1); });
 
   nextBtn.addEventListener('click', () => {
     if (state.step < 4) {
-      // validations per step
       if (state.step === 1 && !(state.service && state.barber)) return alert('Elegí servicio y barbero');
       if (state.step === 2 && !state.date) return alert('Elegí una fecha');
       if (state.step === 3 && !state.start) return alert('Elegí un horario');
@@ -111,7 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // step 4 -> confirm and reserve
+    // Confirmar y reservar
     const nameInput = document.getElementById('input-nombre').value.trim();
     if (!nameInput) return alert('Ingresá tu nombre');
     state.name = nameInput;
@@ -120,12 +101,13 @@ document.addEventListener('DOMContentLoaded', () => {
     fd.append('date', state.date);
     fd.append('barber_id', state.barber.id);
     fd.append('service_id', state.service.id);
-    // Ensure start includes seconds HH:MM:SS
-    fd.append('start', normalizeTime(state.start));
-    // If user is not logged, backend accepts client_id for testing; otherwise it will use session
+    fd.append('start', normalizeTime(state.start)); // HH:MM:SS
+
+    // Si pasamos test_client_id desde la vista lo incluimos para pruebas
     if (window.__BOOKING_DATA && window.__BOOKING_DATA.test_client_id) {
       fd.append('client_id', window.__BOOKING_DATA.test_client_id);
     }
+
     fd.append('name', state.name);
 
     nextBtn.disabled = true;
@@ -138,7 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
           return alert(err.error || 'Error al reservar');
         }
         const j = await r.json();
-        alert('Reserva confirmada 👍');
+        alert('Reserva confirmada 👍 (cita_id: ' + (j.cita_id || '-') + ')');
         window.location.reload();
       }).catch(() => {
         nextBtn.disabled = false;
@@ -146,18 +128,15 @@ document.addEventListener('DOMContentLoaded', () => {
       });
   });
 
-  // Fecha change
   if (inputFecha) {
     inputFecha.addEventListener('change', (e) => {
-      state.date = e.target.value;
+      state.date = e.target.value; // YYYY-MM-DD
       miniFecha.innerText = state.date || '-';
       updateNextState();
-      // If we already have barber + service, fetch slots
       if (state.service && state.barber) fetchSlots();
     });
   }
 
-  // Fetch slots from backend
   function fetchSlots() {
     if (!state.date || !state.barber || !state.service) {
       timesContainer.innerHTML = '<div class="muted">Elegí servicio, barbero y fecha</div>';
@@ -167,12 +146,11 @@ document.addEventListener('DOMContentLoaded', () => {
     fd.append('date', state.date);
     fd.append('barber_id', state.barber.id);
     fd.append('service_id', state.service.id);
-
     timesContainer.innerHTML = 'Cargando...';
     fetch('/booking/slots', { method: 'POST', body: fd })
       .then(r => r.json())
       .then(json => {
-        if (json.message && json.intervals && json.intervals.length === 0) {
+        if (json.message && (!json.intervals || json.intervals.length === 0)) {
           timesContainer.innerHTML = '<div class="muted">' + (json.message || 'No hay horarios') + '</div>';
           return;
         }
@@ -190,16 +168,14 @@ document.addEventListener('DOMContentLoaded', () => {
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'time-btn' + (slot.available ? '' : ' disabled');
-      // display HH:MM (sin segundos) para el usuario
-      const displayStart = slot.start.length > 5 ? slot.start.substr(0,5) : slot.start;
-      const displayEnd = slot.end.length > 5 ? slot.end.substr(0,5) : slot.end;
+      const displayStart = (slot.start || '').length >= 5 ? slot.start.substr(0,5) : slot.start;
+      const displayEnd = (slot.end || '').length >= 5 ? slot.end.substr(0,5) : slot.end;
       btn.innerText = displayStart + ' - ' + displayEnd;
-
       if (slot.available) {
         btn.addEventListener('click', () => {
           document.querySelectorAll('.time-btn').forEach(x => x.classList.remove('selected'));
           btn.classList.add('selected');
-          state.start = slot.start; // keep the backend format (HH:MM:SS) if provided
+          state.start = slot.start; // keep HH:MM:SS if server returns it
           miniHora.innerText = displayStart;
           updateNextState();
         });
@@ -208,15 +184,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Normaliza 'HH:MM' o 'HH:MM:SS' a 'HH:MM:SS'
   function normalizeTime(t) {
     if (!t) return '';
-    const parts = t.split(':');
+    const parts = t.split(':').map(p => p.trim());
     if (parts.length === 2) return `${parts[0].padStart(2,'0')}:${parts[1].padStart(2,'0')}:00`;
     if (parts.length === 3) return `${parts[0].padStart(2,'0')}:${parts[1].padStart(2,'0')}:${parts[2].padStart(2,'0')}`;
     return t;
   }
 
-  // Inicial
   showStep(1);
 });

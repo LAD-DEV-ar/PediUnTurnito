@@ -19,9 +19,9 @@
       <h1>Paso a paso</h1>
       <div class="lead">Completa los pasos para confirmar tu reserva. Podés volver hacia atrás en cualquier momento.</div>
 
-      <div id="stepper" style="margin-top:12px"></div>
+      <div id="stepper"></div>
 
-      <div class="card" style="margin-top:18px">
+      <div class="card">
         <div class="mini">Resumen</div>
         <div id="resumen-mini" style="margin-top:8px">
           <div class="row"><div class="muted">Servicio</div><div id="mini-servicio">-</div></div>
@@ -36,7 +36,7 @@
       <!-- STEP 1: Selección servicio + barbero -->
       <section id="step-1" class="card">
         <h2>1) Elegí servicio</h2>
-        <div id="lista-servicios" class="list" style="margin-top:10px">
+        <div id="lista-servicios" class="list">
           <?php foreach($services as $s): ?>
             <div class="item" data-service-id="<?= s($s->id) ?>"
                  data-duracion="<?= s($s->duracion_min) ?>"
@@ -107,7 +107,9 @@
 </div>
 
 <script>
-  // Datos para el frontend si querés pasarlos desde PHP (opcional)
+  // PARA PRUEBAS: cliente de prueba (Elias = id 3 en tu DB de ejemplo)
   window.__BOOKING_DATA = window.__BOOKING_DATA || {};
+  window.__BOOKING_DATA.test_client_id = 3; // <- cambiá si querés otro id de cliente
+  window.__BOOKING_DATA.baseUrl = ''; // si necesitás prefijo de ruta
 </script>
 <script src="build/js/booking.js" defer></script>
