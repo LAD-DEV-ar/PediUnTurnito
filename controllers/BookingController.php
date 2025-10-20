@@ -15,6 +15,19 @@ class BookingController {
         $services = Servicio::all();
         $barberos = Usuario::allBarberos(); // devuelve objetos Usuario con es_barbero = 1
 
+        $barberiaId = isset($_GET['barberia']) ? intval($_GET['barberia']) : null;
+        if ($barberiaId) {
+            // filtrar servicios y barberos por barberia
+            $services = Servicio::whereAll('id_barberia', $barberiaId);
+            // barberos por barberia: busco usuarios con id_barberia y es_barbero=1
+            $barbers = array_filter(Usuario::allBarberos(), function($b) use ($barberiaId) {
+                return intval($b->id_barberia) === $barberiaId;
+            });
+        } else {
+            $services = Servicio::all();
+            $barbers = Usuario::allBarberos();
+        }
+
         $router->render('booking/index', [
             'services' => $services,
             'barbers'  => $barberos
