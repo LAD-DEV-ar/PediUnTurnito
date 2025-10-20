@@ -136,20 +136,61 @@ document.addEventListener('DOMContentLoaded', () => {
       if (state.service && state.barber) fetchSlots();
     });
   }
+    // pide al backend solo para obtener el 'base' (intervalo) para mostrar en la UI
+  function fetchIntervalForPreview(barberId, date, serviceId = null) {
+    const fd = new FormData();
+    fd.append('date', date);
+    fd.append('barber_id', barberId);
+    // si no hay servicio, podés mandar service_id vacío; backend debería devolver base si encuentra horario
+    if (serviceId) fd.append('service_id', serviceId);
+
+    fetch('/booking/slots', { method: 'POST', body: fd })
+      .then(r => r.json())
+      .then(json => {
+        const intervalLabelEl = document.getElementById('interval-label');
+        if (json && typeof json.base !== 'undefined' && json.base !== null) {
+          intervalLabelEl.innerText = json.base + ' min';
+        } else {
+          intervalLabelEl.innerText = '—';
+        }
+      }).catch(() => {
+        document.getElementById('interval-label').innerText = '—';
+      });
+  }
+
 
   function fetchSlots() {
     if (!state.date || !state.barber || !state.service) {
       timesContainer.innerHTML = '<div class="muted">Elegí servicio, barbero y fecha</div>';
+      // si hay barber pero falta fecha, podemos pedir la info usando hoy como fecha de muestra:
+      if (state.barber && !state.date) {
+        // usar fecha hoy sólo para mostrar intervalo base
+        const today = new Date().toISOString().slice(0,10);
+        fetchIntervalForPreview(state.barber.id, today, state.service ? state.service.id : null);
+      } else {
+        // si no hay barber o servicio, seteamos label por defecto
+        document.getElementById('interval-label').innerText = '—';
+      }
       return;
     }
+
     const fd = new FormData();
     fd.append('date', state.date);
     fd.append('barber_id', state.barber.id);
     fd.append('service_id', state.service.id);
+
     timesContainer.innerHTML = 'Cargando...';
     fetch('/booking/slots', { method: 'POST', body: fd })
       .then(r => r.json())
       .then(json => {
+        // actualizar el label del intervalo con lo que devuelve el servidor
+        const intervalLabelEl = document.getElementById('interval-label');
+        if (json && typeof json.base !== 'undefined' && json.base !== null) {
+          intervalLabelEl.innerText = json.base + ' min';
+        } else {
+          intervalLabelEl.innerText = '—';
+        }
+
         if (json.message && (!json.intervals || json.intervals.length === 0)) {
           timesContainer.innerHTML = '<div class="muted">' + (json.message || 'No hay horarios') + '</div>';
           return;
@@ -157,8 +198,10 @@ document.addEventListener('DOMContentLoaded', () => {
         renderTimes(json.intervals || []);
       }).catch(() => {
         timesContainer.innerHTML = '<div class="muted">Error al cargar horarios</div>';
+        document.getElementById('interval-label').innerText = '—';
       });
   }
+
 
   function renderTimes(intervals) {
     timesContainer.innerHTML = '';

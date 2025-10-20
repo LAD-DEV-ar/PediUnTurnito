@@ -14,7 +14,6 @@ class BookingController {
     public static function index(Router $router) {
         $services = Servicio::all();
         $barberos = Usuario::allBarberos(); // devuelve objetos Usuario con es_barbero = 1
-        
 
         $router->render('booking/index', [
             'services' => $services,

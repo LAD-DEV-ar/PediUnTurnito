@@ -76,7 +76,7 @@
       <section id="step-3" class="card" style="display:none">
         <h2>3) Elegí horario</h2>
         <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px">
-          <div class="chip">Intervalo base: <strong id="interval-label">30 min</strong></div>
+          <div class="chip">Min. Entre Turnos: <strong id="interval-label">30 min</strong></div>
           <div class="chip">Duración: <strong id="duracion-label">-</strong></div>
           <div class="chip">Barbero: <strong id="selected-barbero-label">-</strong></div>
         </div>
