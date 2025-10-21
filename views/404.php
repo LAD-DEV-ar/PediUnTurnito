@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="es">
 <head>
@@ -19,6 +18,7 @@
   </style>
 </head>
 <body>
+  <?php require_once __DIR__ . '/templates/alerts.php'; ?>
   <div class="notfound-wrap">
     <div class="card notfound-card">
       <div style="display:flex;gap:16px;align-items:center">
@@ -48,4 +48,5 @@
     </div>
   </div>
 </body>
+<script src="/build/js/alerts.js"></script>
 </html>

@@ -1,13 +1,9 @@
-<?php
-// views/auth/login.php
-// Variables esperadas (opcionales): $alerts, $email
-?>
-<main class="auth-page">
-  <section class="auth-card">
-    <h1 class="title">Iniciar sesión</h1>
+<main>
+  <h1>Inicio de Sesion</h1>
+  <p>Inicia con tu usuario para empezar a usar PediUnTurnito</p>
 
-    <form method="POST" action="/" class="form-auth" novalidate>
-      <div class="field">
+  <form method="POST" action="/login" class="form-auth" novalidate>
+    <div class="field">
         <label for="email">Email</label>
         <input id="email" name="email" type="email" required value="<?= htmlspecialchars($email ?? '') ?>" />
       </div>
@@ -16,7 +12,7 @@
         <label for="password">Contraseña</label>
         <div class="password-field">
           <input id="password" name="password" type="password" required />
-          <button type="button" class="toggle-pass" aria-label="Mostrar contraseña">👁</button>
+          <button type="button" class="toggle-pass" aria-label="Mostrar contraseña"><i class="fa-solid fa-eye"></i></button>
         </div>
       </div>
 
@@ -28,21 +24,7 @@
         <a class="" href="/registro">Crear cuenta</a>
         <a class="" href="/olvide">¿Olvidaste tu contraseña?</a>
       </div>
-    </form>
-  </section>
+  </form>
 </main>
 
-<script>
-document.addEventListener('click', (e) => {
-  if (e.target.matches('.toggle-pass')) {
-    const input = e.target.closest('.password-field').querySelector('input');
-    if (input.type === 'password') {
-      input.type = 'text';
-      e.target.textContent = '🙈';
-    } else {
-      input.type = 'password';
-      e.target.textContent = '👁';
-    }
-  }
-});
-</script>
+<script src="build/js/helperLogin.js" defer></script>

@@ -3,11 +3,12 @@
 require_once __DIR__ . '/../includes/app.php';
 
 use MVC\Router;
-use Controllers\BookingController;
-use Controllers\HomeController;
 use Controllers\AuthController;
 
 $router = new Router();
+
+$router->get('/login', [AuthController::class, 'login']);
+$router->post('/login', [AuthController::class, 'login']);
 
 
 
