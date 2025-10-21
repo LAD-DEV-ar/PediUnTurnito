@@ -1,4 +1,4 @@
-// public/js/home.js
+
 document.addEventListener('DOMContentLoaded', () => {
   const input = document.getElementById('search-input');
   const resultsList = document.getElementById('results-list');

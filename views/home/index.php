@@ -2,7 +2,6 @@
 // views/home/index.php
 // Variables: $featured (array de barberias)
 ?>
-<link rel="stylesheet" href="/public/css/booking.css">
 
 <div class="booking-root">
   <div class="container" style="grid-template-columns: 1fr; padding: 12px;">
@@ -50,4 +49,4 @@
   // opcional: pasamos baseUrl u otras vars si querés
   window.__HOME_DATA = window.__HOME_DATA || {};
 </script>
-<script src="build/js/home.js" defer></script>
+<script type="module" src="build/js/home.js" defer></script>
