@@ -1,9 +1,1 @@
 @use 'variables' as v;
-*{box-sizing:border-box}
-html,body{height:100%}
-body{
-margin:0; padding:24px; background: linear-gradient(180deg, v.$color-bg-900 0%, v.$color-bg-800 60%);
-color: v.$color-text; font-family: v.$font-sans; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
-}
-a{ color:inherit; text-decoration:none }
-button{ font-family: inherit }

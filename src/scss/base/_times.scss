@@ -1,8 +1,0 @@
-@use 'variables' as v;
-@use 'mixins' as m;
-
-.times{ display:grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap:8px }
-.time-btn{ padding:10px; border-radius:10px; border:1px solid rgba(255,255,255,0.03); background:transparent; cursor:pointer; text-align:center; @include m.transition(); }
-.time-btn:hover{ transform: translateY(-2px) }
-.time-btn.disabled{ opacity:0.45; cursor:not-allowed }
-.time-btn.selected{ background: linear-gradient(90deg, v.$color-primary, v.$color-accent); color:#02112b; font-weight:700 }

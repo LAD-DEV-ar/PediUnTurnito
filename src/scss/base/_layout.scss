@@ -1,17 +1,2 @@
 @use 'variables' as v;
 @use 'mixins' as m;
-.booking-root{ width:100%; max-width: v.$max-width; margin: 0 auto; }
-.container{
-display:grid; grid-template-columns: 360px 1fr; gap: v.$gap; align-items:start;
-@include m.respond(md) { grid-template-columns: 1fr; }
-}
-.aside{
-background: v.$color-surface; padding: 18px; border-radius: v.$radius-md; position:relative; @include m.elev(1);
-}
-.main{ background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.02)); padding:18px; border-radius:v.$radius-md; min-height:520px; }
-
-
-.logo{ display:flex; align-items:center; gap:12px; margin-bottom:8px; }
-.logo .mark{ width:42px; height:42px; border-radius:10px; background:linear-gradient(135deg,v.$color-primary,v.$color-accent); color:#02112b; font-weight:700; display:grid; place-items:center }
-.small{ font-size:13px }
-.lead{ color:v.$color-muted; margin-top:8px; font-size:13px }

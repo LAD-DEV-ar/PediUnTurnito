@@ -1,6 +1,0 @@
-@use 'variables' as v;
-.list{ display:flex; flex-direction:column; gap:10px }
-.item{ display:flex; gap:12px; align-items:center; padding:10px; border-radius:10px; cursor:pointer; transition: background v.$transition-fast; }
-.item:hover{ background: rgba(255,255,255,0.02) }
-.item .badge{ width:46px; height:46px; border-radius:8px; background: rgba(255,255,255,0.02); display:grid; place-items:center }
-.item.selected{ outline: 2px solid rgba(124,58,237,0.18); background: linear-gradient(90deg, rgba(124,58,237,0.06), rgba(255,184,107,0.03)); }

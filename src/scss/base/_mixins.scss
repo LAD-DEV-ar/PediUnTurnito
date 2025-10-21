@@ -22,20 +22,3 @@
     gap: $espaciado;
     grid-template-columns: repeat($columnas, 1fr);
 }
-
-@mixin center { display:flex; align-items:center; justify-content:center; }
-@mixin flex-col { display:flex; flex-direction:column; }
-@mixin respond($bp) { @if $bp == sm { @media (max-width: v.$bp-sm) { @content } } @else if $bp == md { @media (max-width: v.$bp-md) { @content } } }
-@mixin elev($n:1) { box-shadow: if($n==1, v.$shadow-1, v.$shadow-2); }
-@mixin transition($prop: all) { transition: $prop v.$transition-fast; }
-
-
-%visually-hidden {
-position:absolute !important; height:1px; width:1px; overflow:hidden; clip:rect(1px,1px,1px,1px); white-space:nowrap; border:0; padding:0; margin:-1px;
-}
-
-
-// small helpers
-.u-truncate { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.u-center { @include center }
-.u-gap { gap: v.$gap }
