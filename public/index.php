@@ -46,6 +46,8 @@ $router->post('/admin/barbero/list', [AdminController::class, 'listBarberos']);
 $router->post('/admin/turnos/list', [AdminController::class, 'listTurnos']);
 $router->post('/admin/cita/cancel', [AdminController::class, 'cancelCita']);
 $router->post('/admin/cita/list', [AdminController::class, 'listCitas']);
+$router->post('/admin/cita/get', [AdminController::class, 'getCita']);
+
 
 
 

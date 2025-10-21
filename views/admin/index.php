@@ -3,7 +3,6 @@
 // Variables inyectadas: totalBarberias, totalServicios, totalBarberos, recentCitas
 require_login_simple('/');
 ?>
-<link rel="stylesheet" href="/public/css/booking.css">
 
 <div class="booking-root" style="max-width:1200px;margin:0 auto">
   <div class="card" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
@@ -177,7 +176,60 @@ require_login_simple('/');
   </div>
 </div>
 
-<script>
-  // pasar vars si querés
-</script>
-<script src="build/js/admin.js" type="module" defer></script>
+<!-- Modal ver cita (agregar antes de </body>) -->
+<style>
+  /* estilos mínimos del modal (puedes mover a SCSS) */
+  .modal { display:none; position:fixed; inset:0; z-index:1200; align-items:center; justify-content:center; }
+  .modal[aria-hidden="false"] { display:flex; }
+  .modal-backdrop {
+    position:absolute; inset:0;
+    background: rgba(2,6,23,0.55);
+    /* blur (mejor soporte en navegadores modernos) */
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    transition: opacity .18s ease;
+  }
+  .modal-card {
+    position:relative;
+    z-index:1201;
+    width: min(760px, 96%);
+    max-height: 86vh;
+    overflow:auto;
+    border-radius: 12px;
+    padding: 18px;
+    box-shadow: 0 10px 30px rgba(2,6,23,0.6);
+    background: linear-gradient(180deg, rgba(6,10,25,0.96), rgba(8,12,30,0.98));
+  }
+  .modal-close-row { display:flex; justify-content:flex-end; gap:8px; margin-top:12px; }
+  .muted { color: #94a3b8; }
+  .mini { font-size:12px; color:#9fb0c9; }
+</style>
+
+<div id="cita-modal" class="modal" aria-hidden="true" role="dialog" aria-modal="true">
+  <div class="modal-backdrop" aria-hidden="true"></div>
+
+  <div class="modal-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <h3 id="cita-modal-title" style="margin:0">Detalle de la cita</h3>
+        <div id="cita-modal-subtitle" class="mini muted">Cargando…</div>
+      </div>
+      <div>
+        <button id="cita-modal-close" class="btn ghost">Cerrar</button>
+      </div>
+    </div>
+
+    <div id="cita-modal-body" style="margin-top:12px; font-size:14px; color:var(--text-color,#e6eef8);">
+      <div class="muted">Cargando...</div>
+    </div>
+
+    <div class="modal-close-row">
+      <button id="cita-modal-close-2" class="btn ghost">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+
+
+<script type="module" src="/build/js/admin.js?v=<?= filemtime(__DIR__.'/../../public/build/js/admin.js') ?>" defer></script>
+

@@ -131,9 +131,20 @@ class AdminController {
     public static function listHorarios() {
         require_login_simple('/');
         header('Content-Type: application/json; charset=utf-8');
-        $id_barberia = intval($_POST['id_barberia'] ?? 0);
-        if (!$id_barberia) { http_response_code(400); echo json_encode(['error'=>'id_barberia requerido']); return; }
-        $items = HorarioBarberia::whereAll('id_barberia', $id_barberia);
+
+        // permitir id_barberia opcional: si no viene, devolvemos todos los horarios
+        $id_barberia = isset($_POST['id_barberia']) ? intval($_POST['id_barberia']) : 0;
+
+        // DEBUG opcional:
+        // error_log("[DEBUG listHorarios] id_barberia received: " . var_export($id_barberia, true));
+
+        if ($id_barberia > 0) {
+            $items = HorarioBarberia::whereAll('id_barberia', $id_barberia);
+        } else {
+            // si preferís no devolver todos, podés devolver [] en vez de HorarioBarberia::all()
+            $items = HorarioBarberia::all();
+        }
+
         echo json_encode(['items' => array_values($items)]);
     }
 
@@ -278,5 +289,45 @@ class AdminController {
         }
         $ok = $c->eliminar();
         echo json_encode(['success' => (bool)$ok]);
+    }
+    // GET/POST /admin/cita/get
+    public static function getCita() {
+        require_login_simple('/');
+        header('Content-Type: application/json; charset=utf-8');
+
+        $id = intval($_POST['id'] ?? 0);
+        $id_turno = intval($_POST['id_turno'] ?? 0);
+
+        if (!$id && !$id_turno) {
+            http_response_code(400);
+            echo json_encode(['error' => 'id o id_turno requerido']);
+            return;
+        }
+
+        $where = $id ? "c.id = {$id}" : "c.id_turno = {$id_turno}";
+
+        $sql = "SELECT c.*,
+                    t.fecha, t.hora_inicio, t.hora_fin,
+                    u.id AS cliente_id, u.nombre AS cliente_nombre, u.email AS cliente_email, u.telefono AS cliente_telefono,
+                    b.id AS barbero_id, b.nombre AS barbero_nombre, b.email AS barbero_email, b.telefono AS barbero_telefono,
+                    s.id AS servicio_id, s.nombre AS servicio_nombre, s.duracion_min AS servicio_duracion, s.precio AS servicio_precio
+                FROM citas c
+                LEFT JOIN turnos t ON c.id_turno = t.id
+                LEFT JOIN usuarios u ON c.id_cliente = u.id
+                LEFT JOIN usuarios b ON c.id_barbero = b.id
+                LEFT JOIN servicios s ON c.id_servicio = s.id
+                WHERE {$where}
+                LIMIT 1";
+
+        $res = \Model\Cita::SQL($sql);
+        $item = array_shift($res) ?: null;
+
+        if (!$item) {
+            http_response_code(404);
+            echo json_encode(['error' => 'Cita no encontrada']);
+            return;
+        }
+
+        echo json_encode(['item' => $item]);
     }
 }
