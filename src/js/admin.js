@@ -118,43 +118,71 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function loadServicios() {
     serviciosList.innerHTML = 'Cargando...';
-    const barberiaId = document.getElementById('servicios-barberia-filter').value || '';
-    const fd = new FormData(); if (barberiaId) fd.append('id_barberia', barberiaId);
-    fetch('/admin/servicio/list', { method:'POST', body: fd }).then(r=>r.json()).then(json=>{
-      serviciosList.innerHTML = '';
-      (json.items || []).forEach(s => {
-        const d = document.createElement('div'); d.className='item';
-        d.innerHTML = `<div style="flex:1"><strong>${escapeHtml(s.nombre)}</strong><div class="mini">${s.duracion_min} min · $${s.precio}</div></div>
-          <div style="display:flex;gap:8px">
-            <button class="btn ghost btn-edit-servicio" data-id="${s.id}">Editar</button>
-            <button class="btn ghost btn-delete-servicio" data-id="${s.id}">Eliminar</button>
-          </div>`;
-        serviciosList.appendChild(d);
+    const barberiaId = (document.getElementById('servicios-barberia-filter') || {}).value || '';
+    const fd = new FormData();
+    if (barberiaId) fd.append('id_barberia', barberiaId);
+
+    // DEBUG: ver qué se está enviando
+    console.debug('[loadServicios] id_barberia=', barberiaId);
+
+    fetch('/admin/servicio/list', { method:'POST', body: fd })
+      .then(r => r.json())
+      .then(json => {
+        serviciosList.innerHTML = '';
+        const items = json.items || [];
+        if (items.length === 0) {
+          serviciosList.innerHTML = '<div class="muted">No hay servicios.</div>';
+          return;
+        }
+        items.forEach(s => {
+          const d = document.createElement('div');
+          d.className = 'item';
+          d.innerHTML = `<div style="flex:1"><strong>${escapeHtml(s.nombre)}</strong><div class="mini">${s.duracion_min} min · $${s.precio}</div></div>
+            <div style="display:flex;gap:8px">
+              <button class="btn ghost btn-edit-servicio" data-id="${s.id}">Editar</button>
+              <button class="btn ghost btn-delete-servicio" data-id="${s.id}">Eliminar</button>
+            </div>`;
+          serviciosList.appendChild(d);
+        });
+
+        // listeners
+        document.querySelectorAll('.btn-edit-servicio').forEach(b => b.addEventListener('click', e => editServicio(b.dataset.id)));
+        document.querySelectorAll('.btn-delete-servicio').forEach(b => b.addEventListener('click', e => {
+          if (!confirm('Eliminar servicio?')) return;
+          const fd = new FormData(); fd.append('id', b.dataset.id);
+          fetch('/admin/servicio/delete', { method:'POST', body: fd }).then(() => loadServicios());
+        }));
+      })
+      .catch(err => {
+        console.error('loadServicios error', err);
+        serviciosList.innerHTML = 'Error al cargar servicios';
       });
-      document.querySelectorAll('.btn-edit-servicio').forEach(b=>b.addEventListener('click', e=>editServicio(b.dataset.id)));
-      document.querySelectorAll('.btn-delete-servicio').forEach(b=>b.addEventListener('click', e=>{
-        if (!confirm('Eliminar servicio?')) return;
-        const fd = new FormData(); fd.append('id', b.dataset.id);
-        fetch('/admin/servicio/delete', { method:'POST', body: fd }).then(r=>r.json()).then(json=> loadServicios());
-      }));
-    }).catch(()=>serviciosList.innerHTML='Error');
   }
 
   function editServicio(id) {
-    const fd = new FormData(); fd.append('id_barberia',''); // get all
-    fetch('/admin/servicio/list', { method:'POST', body: fd }).then(r=>r.json()).then(json=>{
-      const s = (json.items||[]).find(x=>String(x.id)===String(id));
-      if (!s) return alert('No encontrado');
-      document.getElementById('servicio-id').value = s.id;
-      populateBarberiaSelects();
-      setTimeout(()=> { // wait for selects populated
-        document.getElementById('servicio-barberia').value = s.id_barberia;
-        document.getElementById('servicio-nombre').value = s.nombre;
-        document.getElementById('servicio-duracion').value = s.duracion_min;
-        document.getElementById('servicio-precio').value = s.precio;
-        document.getElementById('servicio-form-wrap').style.display='block';
-      }, 200);
-    });
+    // Pedimos TODOS los servicios de forma simple y buscamos el que corresponde.
+    // Esto evita pasar id_barberia vacío y confundir al servidor.
+    fetch('/admin/servicio/list', { method: 'POST' })
+      .then(r => r.json())
+      .then(json => {
+        const s = (json.items || []).find(x => String(x.id) === String(id));
+        if (!s) return alert('Servicio no encontrado');
+        document.getElementById('servicio-id').value = s.id;
+        populateBarberiaSelects();
+        // esperamos a que se populen selects (pequeña espera)
+        setTimeout(() => {
+          const sel = document.getElementById('servicio-barberia');
+          if (sel) sel.value = s.id_barberia || '';
+          document.getElementById('servicio-nombre').value = s.nombre || '';
+          document.getElementById('servicio-duracion').value = s.duracion_min || '';
+          document.getElementById('servicio-precio').value = s.precio || '';
+          document.getElementById('servicio-form-wrap').style.display = 'block';
+        }, 150);
+      })
+      .catch(err => {
+        console.error('editServicio error', err);
+        alert('Error al obtener servicio');
+      });
   }
 
   // ---------- Horarios ----------
@@ -347,28 +375,44 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // populate barberia selects used in several forms
   function populateBarberiaSelects() {
-    fetch('/admin/barberia/list', { method:'POST' }).then(r=>r.json()).then(json=>{
-      const items = json.items || [];
-      const selects = [
-        document.getElementById('servicio-barberia'),
-        document.getElementById('servicios-barberia-filter'),
-        document.getElementById('horario-barberia'),
-        document.getElementById('horarios-barberia-filter'),
-        document.getElementById('barbero-barberia'),
-        document.getElementById('barberos-barberia-filter'),
-        document.getElementById('turnos-barberia-filter')
-      ];
-      selects.forEach(s => {
-        if (!s) return;
-        s.innerHTML = '<option value="">Seleccione</option>';
-        items.forEach(b => {
-          const opt = document.createElement('option'); opt.value = b.id; opt.text = b.nombre;
-          s.appendChild(opt);
+    fetch('/admin/barberia/list', { method:'POST' })
+      .then(r => r.json())
+      .then(json => {
+        const items = json.items || [];
+        const selects = [
+          document.getElementById('servicio-barberia'),
+          document.getElementById('servicios-barberia-filter'),
+          document.getElementById('horario-barberia'),
+          document.getElementById('horarios-barberia-filter'),
+          document.getElementById('barbero-barberia'),
+          document.getElementById('barberos-barberia-filter'),
+          document.getElementById('turnos-barberia-filter')
+        ];
+        selects.forEach(s => {
+          if (!s) return;
+          // label distinto si es el filtro de servicios (muestra "Todas las barberías")
+          const defaultText = (s.id === 'servicios-barberia-filter') ? 'Todas las barberías' : 'Seleccione';
+          s.innerHTML = `<option value="">${defaultText}</option>`;
+          items.forEach(b => {
+            const opt = document.createElement('option');
+            opt.value = b.id;
+            opt.textContent = b.nombre;
+            s.appendChild(opt);
+          });
         });
+      })
+      .catch(err => {
+        console.error('populateBarberiaSelects error', err);
       });
-    });
   }
 
+  // Recargar servicios al cambiar el filtro de barbería
+  const serviciosFilter = document.getElementById('servicios-barberia-filter');
+  if (serviciosFilter) {
+    serviciosFilter.addEventListener('change', () => {
+      loadServicios();
+    });
+  }
   // inicializar selects
   populateBarberiaSelects();
 
